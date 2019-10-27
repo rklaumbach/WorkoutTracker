@@ -1,5 +1,6 @@
 package com.rklaumbach.workoutlog.Controller
 
+import android.content.Intent
 import android.os.Bundle
 import android.support.design.widget.FloatingActionButton
 import android.support.design.widget.Snackbar
@@ -9,14 +10,24 @@ import android.view.MenuItem
 import android.support.v4.widget.DrawerLayout
 import android.support.design.widget.NavigationView
 import android.support.v7.app.AppCompatActivity
+import android.support.v7.widget.LinearLayoutManager
 import android.support.v7.widget.Toolbar
 import android.view.Menu
+import com.rklaumbach.workoutlog.Adapters.LogRecycleAdapter
+import com.rklaumbach.workoutlog.Model.LogEntry
+import com.rklaumbach.workoutlog.Model.WorkoutEntry
 import com.rklaumbach.workoutlog.R
+import com.rklaumbach.workoutlog.Utilities.EXTRA_LOG_ENTRY
+import kotlinx.android.synthetic.main.content_main.*
 
 class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListener {
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
+        val boogieWoogie = WorkoutEntry("boogie",1,1,"1.0".toFloat())
+        val testWorkouts = mutableListOf(boogieWoogie, boogieWoogie)
+        val testLog = mutableListOf(LogEntry("today",testWorkouts), LogEntry("today",testWorkouts))
+
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
         val toolbar: Toolbar = findViewById(R.id.toolbar)
@@ -36,6 +47,17 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         )
         drawerLayout.addDrawerListener(toggle)
         toggle.syncState()
+
+        val adapter = LogRecycleAdapter(this,testLog) {logEntry ->
+            val workoutActivity = Intent(this, WorkoutActivity::class.java)
+            workoutActivity.putExtra(EXTRA_LOG_ENTRY, logEntry)
+            startActivity(workoutActivity)
+        }
+        recyclerView.adapter = adapter
+
+        val layoutManager = LinearLayoutManager(this)
+        recyclerView.layoutManager = layoutManager
+        recyclerView.setHasFixedSize(true)
 
         navView.setNavigationItemSelectedListener(this)
     }

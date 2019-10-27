@@ -14,4 +14,5 @@
     <string name="menu_share">Share</string>
     <string name="menu_send">Send</string>
     <string name="title_activity_log_entry">LogEntryActivity</string>
+    <string name="number_of_workouts">%1$s workouts.</string>
 </resources>
