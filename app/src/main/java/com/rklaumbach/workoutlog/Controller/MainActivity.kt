@@ -2,23 +2,25 @@ package com.rklaumbach.workoutlog.Controller
 
 import android.content.Intent
 import android.os.Bundle
-import android.support.design.widget.FloatingActionButton
-import android.support.design.widget.Snackbar
-import android.support.v4.view.GravityCompat
-import android.support.v7.app.ActionBarDrawerToggle
+import com.google.android.material.floatingactionbutton.FloatingActionButton
+import com.google.android.material.snackbar.Snackbar
+import androidx.core.view.GravityCompat
+import androidx.appcompat.app.ActionBarDrawerToggle
 import android.view.MenuItem
-import android.support.v4.widget.DrawerLayout
-import android.support.design.widget.NavigationView
-import android.support.v7.app.AppCompatActivity
-import android.support.v7.widget.LinearLayoutManager
-import android.support.v7.widget.Toolbar
+import com.google.android.material.navigation.NavigationView
+import androidx.appcompat.app.AppCompatActivity
+import androidx.appcompat.widget.Toolbar
 import android.view.Menu
+import androidx.room.Room
 import com.rklaumbach.workoutlog.Adapters.LogRecycleAdapter
-import com.rklaumbach.workoutlog.Model.LogEntry
 import com.rklaumbach.workoutlog.Model.WorkoutEntry
 import com.rklaumbach.workoutlog.R
-import com.rklaumbach.workoutlog.Utilities.EXTRA_LOG_ENTRY
+import com.rklaumbach.workoutlog.RoomDatabase.AppDatabase
+import com.rklaumbach.workoutlog.RoomDatabase.BigLog
+import com.rklaumbach.workoutlog.Utilities.EXTRA_LOG_ID
 import kotlinx.android.synthetic.main.content_main.*
+import java.time.LocalDate
+import java.time.format.DateTimeFormatter
 
 class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListener {
 
@@ -26,7 +28,16 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
     override fun onCreate(savedInstanceState: Bundle?) {
         val boogieWoogie = WorkoutEntry("boogie",1,1,"1.0".toFloat())
         val testWorkouts = mutableListOf(boogieWoogie, boogieWoogie)
-        val testLog = mutableListOf(LogEntry("today",testWorkouts), LogEntry("today",testWorkouts))
+        //val log = mutableListOf(LogEntry("today",testWorkouts), LogEntry("today",testWorkouts))
+
+        val builder = Room.databaseBuilder(
+            applicationContext,
+            AppDatabase::class.java, "log"
+        ).allowMainThreadQueries()
+        val db = builder.build()
+
+        var roomLog = db.logDao().getAll()
+        var numLogEntries = roomLog.size
 
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
@@ -38,7 +49,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
             Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
                 .setAction("Action", null).show()
         }
-        val drawerLayout: DrawerLayout = findViewById(R.id.drawer_layout)
+        val drawerLayout: androidx.drawerlayout.widget.DrawerLayout = findViewById(R.id.drawer_layout)
         val navView: NavigationView = findViewById(R.id.nav_view)
         val toggle = ActionBarDrawerToggle(
             this, drawerLayout, toolbar,
@@ -48,22 +59,37 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         drawerLayout.addDrawerListener(toggle)
         toggle.syncState()
 
-        val adapter = LogRecycleAdapter(this,testLog) {logEntry ->
-            val workoutActivity = Intent(this, WorkoutActivity::class.java)
-            workoutActivity.putExtra(EXTRA_LOG_ENTRY, logEntry)
-            startActivity(workoutActivity)
+        val adapter = LogRecycleAdapter(this,roomLog) {logEntry ->
+            switchToWorkoutActivity(logEntry.logId)
         }
         recyclerView.adapter = adapter
 
-        val layoutManager = LinearLayoutManager(this)
+        val layoutManager = androidx.recyclerview.widget.LinearLayoutManager(this)
         recyclerView.layoutManager = layoutManager
         recyclerView.setHasFixedSize(true)
 
         navView.setNavigationItemSelectedListener(this)
+
+        addNewLogEntry.setOnClickListener {
+            val workouts = mutableListOf<WorkoutEntry>()
+            val date :String = LocalDate.now().format(DateTimeFormatter.ofPattern("MM/dd/yy"))
+            val roomLogEntry = BigLog(numLogEntries+1, date, workouts.size)
+            numLogEntries++
+            db.logDao().insertAll(roomLogEntry)
+            roomLog = db.logDao().getAll()
+            switchToWorkoutActivity(roomLogEntry.logId)
+        }
     }
 
+    fun switchToWorkoutActivity(logId:Int){
+        val workoutActivity = Intent(this, WorkoutActivity::class.java)
+        workoutActivity.putExtra(EXTRA_LOG_ID,logId)
+        startActivity(workoutActivity)
+    }
+
+
     override fun onBackPressed() {
-        val drawerLayout: DrawerLayout = findViewById(R.id.drawer_layout)
+        val drawerLayout: androidx.drawerlayout.widget.DrawerLayout = findViewById(R.id.drawer_layout)
         if (drawerLayout.isDrawerOpen(GravityCompat.START)) {
             drawerLayout.closeDrawer(GravityCompat.START)
         } else {
@@ -109,7 +135,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
 
             }
         }
-        val drawerLayout: DrawerLayout = findViewById(R.id.drawer_layout)
+        val drawerLayout: androidx.drawerlayout.widget.DrawerLayout = findViewById(R.id.drawer_layout)
         drawerLayout.closeDrawer(GravityCompat.START)
         return true
     }

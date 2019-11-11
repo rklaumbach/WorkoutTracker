@@ -1,23 +1,27 @@
 <?xml version="1.0" encoding="utf-8"?>
-<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
-                                             xmlns:app="http://schemas.android.com/apk/res-auto"
-                                             xmlns:tools="http://schemas.android.com/tools"
-                                             android:layout_width="match_parent"
-                                             android:layout_height="80dp">
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+                                                   xmlns:app="http://schemas.android.com/apk/res-auto"
+                                                   xmlns:tools="http://schemas.android.com/tools"
+                                                   android:layout_width="match_parent"
+                                                   android:layout_height="80dp">
 
     <TextView
-            android:text="Workout"
+            android:text="workout1234"
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content" tools:layout_editor_absoluteY="20dp"
-            tools:layout_editor_absoluteX="16dp" android:id="@+id/workoutName" android:textSize="24sp"/>
+            android:layout_height="wrap_content" tools:layout_editor_absoluteY="28dp"
+            android:id="@+id/workoutName" android:textSize="18sp" app:layout_constraintStart_toStartOf="parent"
+            android:maxLines="1"
+            android:maxLength="12"
+            android:layout_marginStart="8dp"/>
     <EditText
             android:layout_width="65dp"
             android:layout_height="50dp"
             android:inputType="textPersonName"
             android:ems="10"
             tools:layout_editor_absoluteY="16dp" android:id="@+id/sets"
-            app:layout_constraintStart_toEndOf="@+id/workoutName" app:layout_constraintHorizontal_bias="0.5"
-            app:layout_constraintEnd_toStartOf="@+id/reps" android:hint="sets"/>
+            app:layout_constraintHorizontal_bias="0.5"
+            app:layout_constraintEnd_toStartOf="@+id/reps" android:hint="sets" android:layout_marginStart="100dp"
+            app:layout_constraintStart_toStartOf="parent"/>
     <EditText
             android:layout_width="65dp"
             android:layout_height="50dp"
@@ -34,4 +38,4 @@
             tools:layout_editor_absoluteY="16dp" android:id="@+id/weight"
             app:layout_constraintStart_toEndOf="@+id/reps" app:layout_constraintHorizontal_bias="0.5"
             app:layout_constraintEnd_toEndOf="parent" android:hint="weight"/>
-</android.support.constraint.ConstraintLayout>
+</androidx.constraintlayout.widget.ConstraintLayout>
